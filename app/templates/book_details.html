@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{book.title}}</title>
+    {% load static %}
+    <!-- {% csrf_token %} -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+</head>
+
+<body style="background-color: rgba(231, 233, 249, 0.707);">
+    <!-- Nav Bar Section: -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">Test APP</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <!-- Adding Buttons for the Navbar Section -->
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page"
+                            href="{% url 'fav_books_app:success_redirect' %}">Wall</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{% url 'fav_books_app:books' %}">Books</a>
+                    </li>
+                </ul>
+                <form class="d-flex align-items-center">
+                    <h4> Welcome , {{user.first_name}} {{user.last_name}}</h4>
+                    <a href="{% url 'fav_books_app:logout_process' %}" class="ms-3 btn btn-secondary">Logout</a>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container  mt-6" style="background-color: rgb(255, 255, 255);">
+        <div class="row justify-content-center mt-2 ">
+            <div class="col-sm-6">
+                <h1>{{book.title}} Details</h1>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-sm-9">
+                <hr class="border border-primary border-2 opacity-75">
+            </div>
+        </div>
+        <!-- Validation Messages Section -->
+        {% if messages %}
+        <div class="row justify-content-center mt-3">
+            <div class="col-sm-12">
+                {% for massage in messages %}
+                {% if massage.tags == 'error' %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>Warring ! :</strong> {{massage}}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+                {% if massage.tags == 'success' %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Success ! :</strong> {{massage}}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        <div class="row">
+            <!-- Left Section : Display Book Information -->
+            <div class="col-sm-7 ">
+                <!-- Section : Display Book Title -->
+                <div class="row justify-content-center mt-5">
+                    <div class="col-sm-3 ">
+                        <h5 class="fw-bold">Title:</h5>
+                    </div>
+                    <div class="col-sm-4  ">
+                        <form action="{% url 'fav_books_app:book_process_edit' id=book.id %}" method="post">
+                            {% csrf_token %}
+                            <!-- If the user is the one who added the book -> allow editing -->
+                            {% if user.id == book.uploaded_by.id %}
+                            <input type="text" name="title" class="form-control" value="{{book.title}}">
+                            {% else %}
+                            <p>{{book.title}}</p>
+                            {% endif %}
+                    </div>
+                </div>
+                <!-- Section : Display Add by  -->
+                <div class="row justify-content-center ">
+                    <div class="col-sm-3  ">
+                        <h5 class="fw-bold">Added by:</h5>
+                    </div>
+                    <div class="col-sm-4">
+                        <p>{{book.uploaded_by.first_name}} {{book.uploaded_by.last_name}}</p>
+                    </div>
+                </div>
+                <!-- Section : Display Added Date  -->
+                <div class="row justify-content-center ">
+                    <div class="col-sm-3  ">
+                        <h5 class="fw-bold">Added Date:</h5>
+                    </div>
+                    <div class="col-sm-4">
+                        <p>{{book.created_at}}</p>
+                    </div>
+                </div>
+                <!-- Section : Display Last Updated Date  -->
+                <div class="row justify-content-center ">
+                    <div class="col-sm-3  ">
+                        <h5 class="fw-bold">Last Updated:</h5>
+                    </div>
+                    <div class="col-sm-4">
+                        <p>{{book.updated_at}}</p>
+                    </div>
+                </div>
+                <!-- Section : Display Description  -->
+                <div class="row justify-content-center ">
+                    <div class="col-sm-3  ">
+                        <h5 class="fw-bold">Description:</h5>
+                    </div>
+                    <div class="col-sm-4">
+
+
+
+                        {% if user.id == book.uploaded_by.id %}
+                        <textarea name="desc" class="form-control" rows="5">{{book.desc}}</textarea>
+                        {% else %}
+                        <p>{{book.desc}}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <!-- Right Section : Display the users who liked the book -->
+            <div class="col-sm-4 ">
+                <div class="row justify-content-center mt-5 ">
+                    <h4 class="col-sm-12 ">Users Who like {{book.title}}:</h4>
+                    <p>
+                        {% for users_like_book in book.liked_by.all%}
+                    <ul>
+                        <li>{{users_like_book.first_name}}
+                            {% if users_like_book.id == user.id %}
+                            <a href="{% url 'fav_books_app:unfav' book_id=book.id user_id=user.id %}">Un-Favorite</a>
+                            {%endif%}
+                        </li>
+                    </ul>
+                    {% endfor %}
+                    </p>
+                </div>
+
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-sm-9">
+                <hr class="border border-primary border-2 opacity-75">
+            </div>
+        </div>
+        {% if user.id == book.uploaded_by.id %}
+        <!-- Section : Update Button / Delete Button  -->
+        <div class="row justify-content-center align-items-center  ">
+            <div class="col-sm-6 ">
+                <div class="row justify-content-between align-items-center mb-4 mt-3 ">
+                    <div class="col-sm-4 ">
+                        <button type="submit" class=" btn btn-primary">Update</button>
+                        <span>&nbsp; | &nbsp; </span>
+                        <a class="btn btn-danger" href="{% url 'fav_books_app:delete_book' book_id=book.id %}">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        </form>
+    </div>
+
+
+</body>
+<script src="{% static 'Js/bootstrap.bundle.js' %}"></script>
+
+</html>

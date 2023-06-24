@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>index page</title>
+    {% load static %}
+    <!-- {% csrf_token %} -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    {% load static %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    {% load static %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
+</head>
+
+<body style="background-color: rgba(231, 233, 249, 0.707);">
+    <!-- Nav Bar Section: -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">Test APP</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <!-- Adding Buttons for the Navbar Section -->
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page"
+                            href="{% url 'fav_books_app:success_redirect' %}">Wall</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{% url 'fav_books_app:books' %}">Books</a>
+                    </li>
+                </ul>
+                <form class="d-flex align-items-center">
+                    <h4> Welcome , {{first_name}} {{last_name}}</h4>
+                    <a href="{% url 'fav_books_app:logout_process' %}" class="ms-3 btn btn-secondary">Logout</a>
+                </form>
+            </div>
+        </div>
+    </nav>
+        <!-- The Body Content Section  -->
+    <div class="container mt-6 pt-4" style="background-color: white;">
+        <!-- Headline Section -->
+        <div class="row justify-content-center mb-3">
+            <div class="col-sm-12  d-flex justify-content-center">
+                <h1 class="aligne-item-center">Welcome To Book Section</h1>
+            </div>
+        </div>
+        <!-- Messages Validation Section -->
+        <div class="container mt-6 mb-3" style="background-color: white;">
+            {% if messages %}
+            <div class="row justify-content-center mt-3">
+                <div class="col-sm-12">
+                    {% for massage in messages %}
+                    {% if massage.tags == 'error' %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <strong>Warring ! :</strong> {{massage}}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+                    {% if massage.tags == 'success' %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Success ! :</strong> {{massage}}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <body style="background-color: rgba(231, 233, 249, 0.707);">
+                <div class="row">
+                    <!-- Left Side: Adding New Books Section -->
+                    <div class="col-sm-6 ">
+                        <h2 class="mt-3 mb-5">Add a Book</h2>
+                        <form action="{% url 'fav_books_app:book_process_add' %}" method="post">
+                            {% csrf_token %}
+                            <!-- Adding Title Section -->
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <label class="col-form-label" for="">Title:</label>
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="text" name="title" class="form-control">
+                                </div>
+                            </div>
+                            <!-- Adding Description Section -->
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <label class="col-form-label" for="">Description:</label>
+                                </div>
+                                <div class="col-sm-6">
+                                    <textarea name="desc" class="form-control" rows="5"></textarea>
+                                </div>
+                            </div>
+                            <!-- Submitting Section -->
+                            <div class="row mb-3 justify-content-center">
+                                <div class="col-sm-6">
+                                    <button type="submit" class="btn btn-primary">Add</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Right Side: Displaying Available Books Section -->
+                    <div class="col-sm-6">
+                        <h3 class="mt-3">Books we Have :</h3>
+                        <!-- Iterate through book objects  -->
+                        
+                        {% for book in books %}
+                        <!-- Book :Title -->
+                        <a href="{% url 'fav_books_app:book_details' id=book.id %}">{{book.title}}</a>
+                        <!-- Book : Added by (Up loaded By) -->
+                        <p>(Add By {{book.uploaded_by.first_name}} {{book.uploaded_by.last_name}})</p>
+                        <!-- Iterate through book.liked_by.all to display if the user like the book -->
+                        {% for key, value in tag.items%}
+                        {%if book.id|stringformat:"s" == key %}
+                        
+                        {{value|safe}}
+                        
+                        {% endif %}
+                        {% endfor %}
+                        
+                        
+                        <div class="row justify-content-start">
+                            <div class="col-sm-10">
+                                <hr class="hr">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+
+                </div>
+
+        </div>
+    </div>
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script></body> -->
+
+
+</body>
+
+
+</html>
